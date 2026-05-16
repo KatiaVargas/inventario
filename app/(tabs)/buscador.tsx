@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, FlatList } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { articulosData, almacenesData } from '../../src/data/mockData';
+import { useInventory, Articulo } from '../../src/context/InventoryContext';
 
 export default function BuscadorScreen() {
   const [searchQuery, setSearchQuery] = useState('');
+  const { articulos, almacenes, secciones } = useInventory();
 
   // Simular búsqueda simple por nombre
   const filteredArticulos = searchQuery 
-    ? articulosData.filter(a => a.nombre.toLowerCase().includes(searchQuery.toLowerCase()))
-    : articulosData;
+    ? articulos.filter(a => a.nombre.toLowerCase().includes(searchQuery.toLowerCase()))
+    : articulos;
 
-  const renderItem = ({ item }: { item: typeof articulosData[0] }) => {
-    const almacen = almacenesData.find(a => a.id === item.almacenId);
+  const renderItem = ({ item }: { item: Articulo }) => {
+    const almacen = almacenes.find(a => a.id === item.almacenId);
+    const seccion = secciones.find(s => s.id === item.seccionId);
     
     return (
       <View style={styles.resultCard}>
@@ -23,7 +25,7 @@ export default function BuscadorScreen() {
         <View style={styles.locationContainer}>
           <FontAwesome name={almacen?.icono as any || 'archive'} size={14} color="#4A90E2" />
           <Text style={styles.locationText}>
-            {almacen?.nombre} <Text style={styles.separator}>•</Text> {item.seccion}
+            {almacen?.nombre} <Text style={styles.separator}>•</Text> {seccion?.nombre || 'General'}
           </Text>
         </View>
       </View>

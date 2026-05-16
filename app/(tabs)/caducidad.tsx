@@ -1,13 +1,15 @@
 import React from 'react';
 import { StyleSheet, Text, View, SectionList } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { articulosData } from '../../src/data/mockData';
+import { useInventory, getArticuloStatus } from '../../src/context/InventoryContext';
 
 export default function CaducidadScreen() {
+  const { articulos, secciones } = useInventory();
+  
   // Agrupar artículos por estado
-  const expired = articulosData.filter(a => a.statusCaducidad === 'expired');
-  const warning = articulosData.filter(a => a.statusCaducidad === 'warning');
-  const ok = articulosData.filter(a => a.statusCaducidad === 'ok');
+  const expired = articulos.filter(a => getArticuloStatus(a.caducidad) === 'expired');
+  const warning = articulos.filter(a => getArticuloStatus(a.caducidad) === 'warning');
+  const ok = articulos.filter(a => getArticuloStatus(a.caducidad) === 'ok');
 
   const sections = [
     { title: 'Caducados', data: expired, color: '#F44336', icon: 'times-circle' },
@@ -15,23 +17,27 @@ export default function CaducidadScreen() {
     { title: 'En buen estado', data: ok, color: '#4CAF50', icon: 'check-circle' },
   ];
 
-  const renderItem = ({ item, section }: any) => (
-    <View style={styles.card}>
-      <View style={[styles.statusIndicator, { backgroundColor: section.color }]} />
-      <View style={styles.cardContent}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.itemName}>{item.nombre}</Text>
-          <Text style={[styles.dateText, { color: section.color }]}>
-            {item.caducidad}
-          </Text>
-        </View>
-        <View style={styles.locationContainer}>
-          <FontAwesome name="map-marker" size={12} color="#AAAAAA" />
-          <Text style={styles.locationText}>{item.seccion}</Text>
+  const renderItem = ({ item, section }: any) => {
+    const seccion = secciones.find(s => s.id === item.seccionId);
+    
+    return (
+      <View style={styles.card}>
+        <View style={[styles.statusIndicator, { backgroundColor: section.color }]} />
+        <View style={styles.cardContent}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.itemName}>{item.nombre}</Text>
+            <Text style={[styles.dateText, { color: section.color }]}>
+              {item.caducidad || 'Sin fecha'}
+            </Text>
+          </View>
+          <View style={styles.locationContainer}>
+            <FontAwesome name="map-marker" size={12} color="#AAAAAA" />
+            <Text style={styles.locationText}>{seccion?.nombre || 'General'}</Text>
+          </View>
         </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   const renderSectionHeader = ({ section }: any) => (
     <View style={styles.sectionHeader}>

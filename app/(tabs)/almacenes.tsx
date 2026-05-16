@@ -1,9 +1,68 @@
-import React from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { almacenesData } from '../../src/data/mockData';
+import { useRouter } from 'expo-router';
+import { useInventory } from '../../src/context/InventoryContext';
 
 export default function AlmacenesScreen() {
+  const router = useRouter();
+  const { almacenes, addAlmacen, updateAlmacen, deleteAlmacen, getArticulosByAlmacen } = useInventory();
+  
+  const [modalVisible, setModalVisible] = useState(false);
+  const [nuevoNombre, setNuevoNombre] = useState('');
+  const [editId, setEditId] = useState<string | null>(null);
+
+  const openNewModal = () => {
+    setEditId(null);
+    setNuevoNombre('');
+    setModalVisible(true);
+  };
+
+  const handleAddAlmacen = () => {
+    if (nuevoNombre.trim().length > 0) {
+      if (editId) {
+        updateAlmacen(editId, nuevoNombre.trim());
+      } else {
+        addAlmacen(nuevoNombre.trim(), 'archive');
+      }
+      setNuevoNombre('');
+      setEditId(null);
+      setModalVisible(false);
+    }
+  };
+
+  const openOptions = (almacen: any) => {
+    Alert.alert(
+      'Opciones',
+      `¿Qué deseas hacer con "${almacen.nombre}"?`,
+      [
+        {
+          text: 'Editar',
+          onPress: () => {
+            setEditId(almacen.id);
+            setNuevoNombre(almacen.nombre);
+            setModalVisible(true);
+          }
+        },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              'Confirmar Eliminación',
+              'Al eliminar este almacén, se borrarán todas sus divisiones y artículos. ¿Estás seguro?',
+              [
+                { text: 'Cancelar', style: 'cancel' },
+                { text: 'Sí, eliminar', style: 'destructive', onPress: () => deleteAlmacen(almacen.id) }
+              ]
+            );
+          }
+        },
+        { text: 'Cancelar', style: 'cancel' }
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollContent}>
@@ -11,22 +70,70 @@ export default function AlmacenesScreen() {
         <Text style={styles.subtitle}>Gestiona los lugares donde guardas tus cosas</Text>
 
         <View style={styles.grid}>
-          {almacenesData.map((almacen) => (
-            <TouchableOpacity key={almacen.id} style={styles.card}>
-              <View style={styles.iconContainer}>
-                <FontAwesome name={almacen.icono as any} size={32} color="#FFFFFF" />
-              </View>
-              <Text style={styles.cardTitle}>{almacen.nombre}</Text>
-              <Text style={styles.cardSubtitle}>{almacen.cantidadArticulos} artículos</Text>
-            </TouchableOpacity>
-          ))}
+          {almacenes.map((almacen) => {
+            const numArticulos = getArticulosByAlmacen(almacen.id).length;
+            
+            return (
+              <TouchableOpacity 
+                key={almacen.id} 
+                style={styles.card}
+                onPress={() => router.push(`/almacen/${almacen.id}`)}
+                onLongPress={() => openOptions(almacen)}
+                delayLongPress={200}
+              >
+                <View style={styles.iconContainer}>
+                  <FontAwesome name={almacen.icono as any} size={32} color="#FFFFFF" />
+                </View>
+                <Text style={styles.cardTitle}>{almacen.nombre}</Text>
+                <Text style={styles.cardSubtitle}>{numArticulos} artículos</Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </ScrollView>
 
-      <TouchableOpacity style={styles.fab}>
+      <TouchableOpacity style={styles.fab} onPress={openNewModal}>
         <FontAwesome name="plus" size={20} color="#FFFFFF" />
         <Text style={styles.fabText}>Añadir almacén</Text>
       </TouchableOpacity>
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>{editId ? 'Editar Almacén' : 'Nuevo Almacén'}</Text>
+            
+            <TextInput
+              style={styles.input}
+              placeholder="Nombre del almacén (ej. Bodega)"
+              placeholderTextColor="#AAAAAA"
+              value={nuevoNombre}
+              onChangeText={setNuevoNombre}
+              autoFocus
+            />
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.modalButtonCancel]} 
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.modalButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.modalButtonPrimary]} 
+                onPress={handleAddAlmacen}
+              >
+                <Text style={styles.modalButtonText}>{editId ? 'Guardar' : 'Crear'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -55,7 +162,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingBottom: 80, // espacio para el boton flotante
+    paddingBottom: 80,
   },
   card: {
     backgroundColor: '#1E1E1E',
@@ -107,6 +214,58 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'bold',
     marginLeft: 8,
+    fontSize: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: '#1E1E1E',
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#333333',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 16,
+  },
+  input: {
+    backgroundColor: '#2C2C2C',
+    borderRadius: 8,
+    padding: 12,
+    color: '#FFFFFF',
+    fontSize: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#444444',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  modalButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginLeft: 12,
+  },
+  modalButtonCancel: {
+    backgroundColor: '#333333',
+  },
+  modalButtonPrimary: {
+    backgroundColor: '#4A90E2',
+  },
+  modalButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
     fontSize: 16,
   },
 });

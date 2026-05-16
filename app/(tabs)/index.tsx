@@ -1,9 +1,17 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { resumenData } from '../../src/data/mockData';
+import { useInventory, getArticuloStatus } from '../../src/context/InventoryContext';
+import { listaComprasData } from '../../src/data/mockData'; // Mantengo lista compras porque no se pidio refactorizar
 
 export default function InicioScreen() {
+  const { articulos } = useInventory();
+  
+  const totalArticulos = articulos.length;
+  const porCaducar = articulos.filter(a => getArticuloStatus(a.caducidad) === 'warning').length;
+  const caducados = articulos.filter(a => getArticuloStatus(a.caducidad) === 'expired').length;
+  const faltanEnLista = listaComprasData.filter(i => !i.comprado).length;
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -14,25 +22,25 @@ export default function InicioScreen() {
       <View style={styles.cardsContainer}>
         <View style={styles.card}>
           <FontAwesome name="cubes" size={32} color="#4A90E2" />
-          <Text style={styles.cardValue}>{resumenData.totalArticulos}</Text>
+          <Text style={styles.cardValue}>{totalArticulos}</Text>
           <Text style={styles.cardLabel}>Artículos totales</Text>
         </View>
 
         <View style={styles.card}>
           <FontAwesome name="exclamation-circle" size={32} color="#FFC107" />
-          <Text style={styles.cardValue}>{resumenData.porCaducar}</Text>
+          <Text style={styles.cardValue}>{porCaducar}</Text>
           <Text style={styles.cardLabel}>Por caducar</Text>
         </View>
 
         <View style={styles.card}>
           <FontAwesome name="times-circle" size={32} color="#F44336" />
-          <Text style={styles.cardValue}>{resumenData.caducados}</Text>
+          <Text style={styles.cardValue}>{caducados}</Text>
           <Text style={styles.cardLabel}>Caducados</Text>
         </View>
 
         <View style={styles.card}>
           <FontAwesome name="shopping-basket" size={32} color="#4CAF50" />
-          <Text style={styles.cardValue}>{resumenData.faltanEnLista}</Text>
+          <Text style={styles.cardValue}>{faltanEnLista}</Text>
           <Text style={styles.cardLabel}>En lista compras</Text>
         </View>
       </View>

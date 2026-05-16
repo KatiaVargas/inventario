@@ -45,15 +45,20 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
+import { InventoryProvider } from '../src/context/InventoryContext';
+
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
+    <InventoryProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="almacen/[id]" options={{ presentation: 'modal' }} />
+        </Stack>
+      </ThemeProvider>
+    </InventoryProvider>
   );
 }
