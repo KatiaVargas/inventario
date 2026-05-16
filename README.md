@@ -1,31 +1,33 @@
-# Inventario Personal
+# Inventario Personal 
 
-• **Descripción general de la aplicación:**
-<br>*Es una aplicación que le permite al usuario ordenar sus artículos, objetos y alimentos en respectivas secciones para mantener un control de almacenamiento y poder detectar a tiempo que alimentos pueden llegar a ser cáducos y encontrar sus respectivos artículos con mayor facilidad*
+• Nombre del proyecto.
+**Inventario Personal**
 
-• **Problema o necesidad que resuelve:**
-<br>*Ordenar y mantener un control sobre artículos de forma eficiente*
+• Descripción general de la aplicación.
+*Es una aplicación que le permite al usuario ordenar sus artículos, objetos y alimentos en respectivas secciones para mantener un control de almacenamiento y poder detectar a tiempo que alimentos pueden llegar a ser caducos y encontrar sus respectivos artículos con mayor facilidad*
 
-• **Integrantes del equipo y rol de cada uno**
-<br>**Katia Paola Vargas Flores** - Líder técnico | Front end | Funcionalidad | UI
+• Problema o necesidad que resuelve.
+*Ordenar y mantener un control sobre artículos de forma eficiente*
 
-• **Tecnologías utilizadas.**
-<br>REACT 
-<br>NATIVE
-<br>EXPO
+• Integrantes del equipo y rol de cada uno.
+**Katia Paola Vargas Flores** - Líder técnico | Front end | Funcionalidad | UI
 
-• **Herramienta o herramientas de IA utilizadas.**
-<br>- Antigravity
+• Tecnologías utilizadas.
+REACT 
+NATIVE
+EXPO
 
-• **Prompts principales utilizados o resumen de cómo se usó la IA.**
+• Herramienta o herramientas de IA utilizadas.
+- Antigravity
 
-• **Funcionalidades principales.**
+• Prompts principales utilizados o resumen de cómo se usó la IA.
 
-• **Estructura del proyecto.**
+• Funcionalidades principales.
 
-• **Instrucciones para instalar y ejecutar.**
+• Estructura del proyecto.
 
-• **Capturas de pantalla o enlaces a evidencias.**
+• Instrucciones para instalar y ejecutar.
 
-• **Conclusiónes del equipo.**
-<br>
+• Capturas de pantalla o enlaces a evidencias.
+
+• Conclusiones del equipo.
