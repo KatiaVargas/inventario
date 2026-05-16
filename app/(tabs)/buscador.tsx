@@ -1,23 +1,65 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, FlatList } from 'react-native';
+import { StyleSheet, Text, View, TextInput, FlatList, TouchableOpacity, Alert } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useRouter } from 'expo-router';
 import { useInventory, Articulo } from '../../src/context/InventoryContext';
+import AddArticuloModal from '../../src/components/AddArticuloModal';
 
 export default function BuscadorScreen() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
-  const { articulos, almacenes, secciones } = useInventory();
+  const { articulos, almacenes, secciones, deleteArticulo } = useInventory();
+  
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedArticulo, setSelectedArticulo] = useState<Articulo | null>(null);
 
   // Simular búsqueda simple por nombre
   const filteredArticulos = searchQuery 
     ? articulos.filter(a => a.nombre.toLowerCase().includes(searchQuery.toLowerCase()))
     : articulos;
 
+  const openOptionsArticulo = (articulo: Articulo) => {
+    Alert.alert(
+      'Opciones de Artículo',
+      `¿Qué deseas hacer con "${articulo.nombre}"?`,
+      [
+        {
+          text: 'Editar',
+          onPress: () => {
+            setSelectedArticulo(articulo);
+            setModalVisible(true);
+          }
+        },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              'Confirmar Eliminación',
+              '¿Estás seguro de que quieres eliminar este artículo?',
+              [
+                { text: 'Cancelar', style: 'cancel' },
+                { text: 'Sí, eliminar', style: 'destructive', onPress: () => deleteArticulo(articulo.id) }
+              ]
+            );
+          }
+        },
+        { text: 'Cancelar', style: 'cancel' }
+      ]
+    );
+  };
+
   const renderItem = ({ item }: { item: Articulo }) => {
     const almacen = almacenes.find(a => a.id === item.almacenId);
     const seccion = secciones.find(s => s.id === item.seccionId);
     
     return (
-      <View style={styles.resultCard}>
+      <TouchableOpacity 
+        style={styles.resultCard}
+        onPress={() => router.push({ pathname: '/almacen/[id]', params: { id: item.almacenId } })}
+        onLongPress={() => openOptionsArticulo(item)}
+        delayLongPress={500}
+      >
         <View style={styles.resultHeader}>
           <Text style={styles.itemName}>{item.nombre}</Text>
           <Text style={styles.itemCategory}>{item.categoria}</Text>
@@ -28,7 +70,7 @@ export default function BuscadorScreen() {
             {almacen?.nombre || 'Desconocido'} <Text style={styles.breadcrumbArrow}>➔</Text> {seccion?.nombre || 'Sin División'}
           </Text>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -67,6 +109,15 @@ export default function BuscadorScreen() {
         ListEmptyComponent={
           <Text style={styles.emptyText}>No se encontraron artículos.</Text>
         }
+      />
+
+      <AddArticuloModal 
+        visible={modalVisible} 
+        onClose={() => {
+          setModalVisible(false);
+          setSelectedArticulo(null);
+        }}
+        articulo={selectedArticulo}
       />
     </View>
   );

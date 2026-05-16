@@ -1,10 +1,11 @@
+import React from 'react';
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, TextInput } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useInventory } from '../../src/context/InventoryContext';
 
 export default function ComprasScreen() {
   const { listaCompras, addArticuloCompra, toggleComprado, deleteArticuloCompra } = useInventory();
-  const [nuevoItem, setNuevoItem] = useState('');
+  const [nuevoItem, setNuevoItem] = React.useState('');
 
   const handleAddItem = () => {
     if (nuevoItem.trim().length > 0) {

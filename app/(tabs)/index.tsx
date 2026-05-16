@@ -1,10 +1,14 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useRouter } from 'expo-router';
 import { useInventory, getArticuloStatus } from '../../src/context/InventoryContext';
+import AddArticuloModal from '../../src/components/AddArticuloModal';
 
 export default function InicioScreen() {
+  const router = useRouter();
   const { articulos, listaCompras } = useInventory();
+  const [modalVisible, setModalVisible] = React.useState(false);
   
   const totalArticulos = articulos.length;
   const porCaducar = articulos.filter(a => getArticuloStatus(a.caducidad) === 'warning').length;
@@ -19,40 +23,43 @@ export default function InicioScreen() {
       </View>
 
       <View style={styles.cardsContainer}>
-        <View style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/buscador')}>
           <FontAwesome name="cubes" size={32} color="#4A90E2" />
           <Text style={styles.cardValue}>{totalArticulos}</Text>
           <Text style={styles.cardLabel}>Artículos totales</Text>
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/caducidad')}>
           <FontAwesome name="exclamation-circle" size={32} color="#FFC107" />
           <Text style={styles.cardValue}>{porCaducar}</Text>
           <Text style={styles.cardLabel}>Por caducar</Text>
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/caducidad')}>
           <FontAwesome name="times-circle" size={32} color="#F44336" />
           <Text style={styles.cardValue}>{caducados}</Text>
           <Text style={styles.cardLabel}>Caducados</Text>
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/compras')}>
           <FontAwesome name="shopping-basket" size={32} color="#4CAF50" />
           <Text style={styles.cardValue}>{faltanEnLista}</Text>
           <Text style={styles.cardLabel}>En lista compras</Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Acceso Rápido</Text>
-        <View style={styles.quickAccessContainer}>
-          <View style={styles.quickAccessBtn}>
-            <FontAwesome name="plus" size={24} color="#FFFFFF" />
-            <Text style={styles.quickAccessText}>Nuevo Artículo</Text>
-          </View>
-        </View>
-      </View>
+      <TouchableOpacity 
+        style={styles.floatingAddBtn} 
+        onPress={() => setModalVisible(true)}
+      >
+        <FontAwesome name="plus" size={24} color="#FFFFFF" />
+        <Text style={styles.floatingAddBtnText}>Nuevo Artículo</Text>
+      </TouchableOpacity>
+
+      <AddArticuloModal 
+        visible={modalVisible} 
+        onClose={() => setModalVisible(false)} 
+      />
     </ScrollView>
   );
 }
@@ -107,33 +114,24 @@ const styles = StyleSheet.create({
     color: '#AAAAAA',
     textAlign: 'center',
   },
-  section: {
-    marginTop: 16,
-    marginBottom: 32,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 16,
-  },
-  quickAccessContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  quickAccessBtn: {
-    backgroundColor: '#2C2C2C',
-    width: '100%',
+  floatingAddBtn: {
+    backgroundColor: '#4A90E2',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 16,
     borderRadius: 12,
+    marginTop: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  quickAccessText: {
+  floatingAddBtnText: {
     color: '#FFFFFF',
-    fontWeight: '600',
-    marginLeft: 8,
-    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 12,
+    fontSize: 18,
   },
 });

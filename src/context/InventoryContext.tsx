@@ -42,6 +42,7 @@ interface InventoryContextType {
   deleteAlmacen: (id: string) => void;
   updateSeccion: (id: string, nombre: string) => void;
   deleteSeccion: (id: string) => void;
+  vaciarSeccion: (id: string) => void;
   getSeccionesByAlmacen: (almacenId: string) => Seccion[];
   getArticulosByAlmacen: (almacenId: string) => Articulo[];
   getArticulosBySeccion: (seccionId: string) => Articulo[];
@@ -98,11 +99,41 @@ export const InventoryProvider = ({ children }: { children: ReactNode }) => {
 
   const addArticulo = (articulo: Omit<Articulo, 'id'>) => {
     const newArticulo = { id: generateId(), ...articulo };
-    setArticulos(prev => [...prev, newArticulo]);
+    setArticulos(prev => {
+      const updated = [...prev, newArticulo];
+      checkAndAddToList(newArticulo, updated);
+      return updated;
+    });
   };
 
   const updateArticulo = (id: string, articulo: Partial<Omit<Articulo, 'id'>>) => {
-    setArticulos(prev => prev.map(a => a.id === id ? { ...a, ...articulo } : a));
+    setArticulos(prev => {
+      const updated = prev.map(a => a.id === id ? { ...a, ...articulo } : a);
+      const affected = updated.find(a => a.id === id);
+      if (affected) checkAndAddToList(affected, updated);
+      return updated;
+    });
+  };
+
+  const checkAndAddToList = (articulo: Articulo, allArticulos: Articulo[]) => {
+    const status = getArticuloStatus(articulo.caducidad);
+    if (status === 'expired') {
+      // Buscar otros articulos con el mismo nombre que NO esten caducados
+      const hayOtrosBuenos = allArticulos.some(a => 
+        a.id !== articulo.id && 
+        a.nombre.toLowerCase() === articulo.nombre.toLowerCase() && 
+        getArticuloStatus(a.caducidad) !== 'expired'
+      );
+
+      if (!hayOtrosBuenos) {
+        // Verificar si ya esta en la lista de compras para no duplicar
+        setListaCompras(prev => {
+          const yaEnLista = prev.some(item => item.nombre.toLowerCase() === articulo.nombre.toLowerCase() && !item.comprado);
+          if (yaEnLista) return prev;
+          return [...prev, { id: generateId(), nombre: articulo.nombre, comprado: false }];
+        });
+      }
+    }
   };
 
   const deleteArticulo = (id: string) => {
@@ -125,7 +156,12 @@ export const InventoryProvider = ({ children }: { children: ReactNode }) => {
 
   const deleteSeccion = (id: string) => {
     setSecciones(prev => prev.filter(s => s.id !== id));
-    setArticulos(prev => prev.filter(a => a.seccionId !== id));
+    // En lugar de borrar articulos, los movemos a "Sin División"
+    setArticulos(prev => prev.map(a => a.seccionId === id ? { ...a, seccionId: '' } : a));
+  };
+
+  const vaciarSeccion = (id: string) => {
+    setArticulos(prev => prev.map(a => a.seccionId === id ? { ...a, seccionId: '' } : a));
   };
 
   const addArticuloCompra = (nombre: string) => {
@@ -163,6 +199,7 @@ export const InventoryProvider = ({ children }: { children: ReactNode }) => {
       deleteAlmacen,
       updateSeccion,
       deleteSeccion,
+      vaciarSeccion,
       getSeccionesByAlmacen,
       getArticulosByAlmacen,
       getArticulosBySeccion,

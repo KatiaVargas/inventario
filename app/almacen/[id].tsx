@@ -8,7 +8,7 @@ import { useInventory, CaducidadStatus } from '../../src/context/InventoryContex
 export default function AlmacenDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { almacenes, secciones, articulos, addSeccion, updateSeccion, deleteSeccion, addArticulo, updateArticulo, deleteArticulo } = useInventory();
+  const { almacenes, secciones, articulos, addSeccion, updateSeccion, deleteSeccion, vaciarSeccion, addArticulo, updateArticulo, deleteArticulo } = useInventory();
 
   const almacen = almacenes.find(a => a.id === id);
   const almacenSecciones = secciones.filter(s => s.almacenId === id);
@@ -103,12 +103,25 @@ export default function AlmacenDetailScreen() {
           }
         },
         {
+          text: 'Vaciar',
+          onPress: () => {
+            Alert.alert(
+              'Vaciar División',
+              'Todos los artículos de esta división pasarán a estar "Sin División". ¿Continuar?',
+              [
+                { text: 'Cancelar', style: 'cancel' },
+                { text: 'Sí, vaciar', onPress: () => vaciarSeccion(seccion.id) }
+              ]
+            );
+          }
+        },
+        {
           text: 'Eliminar',
           style: 'destructive',
           onPress: () => {
             Alert.alert(
               'Confirmar Eliminación',
-              'Al eliminar esta división, se borrarán todos los artículos dentro de ella. ¿Estás seguro?',
+              'Al eliminar esta división, sus artículos NO se borrarán, sino que pasarán a estar "Sin División". ¿Estás seguro?',
               [
                 { text: 'Cancelar', style: 'cancel' },
                 { text: 'Sí, eliminar', style: 'destructive', onPress: () => deleteSeccion(seccion.id) }
