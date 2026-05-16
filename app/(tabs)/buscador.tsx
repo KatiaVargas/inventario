@@ -20,12 +20,12 @@ export default function BuscadorScreen() {
       <View style={styles.resultCard}>
         <View style={styles.resultHeader}>
           <Text style={styles.itemName}>{item.nombre}</Text>
-          <FontAwesome name="chevron-right" size={12} color="#AAAAAA" />
+          <Text style={styles.itemCategory}>{item.categoria}</Text>
         </View>
         <View style={styles.locationContainer}>
           <FontAwesome name={almacen?.icono as any || 'archive'} size={14} color="#4A90E2" />
           <Text style={styles.locationText}>
-            {almacen?.nombre} <Text style={styles.separator}>•</Text> {seccion?.nombre || 'General'}
+            {almacen?.nombre || 'Desconocido'} <Text style={styles.breadcrumbArrow}>➔</Text> {seccion?.nombre || 'Sin División'}
           </Text>
         </View>
       </View>
@@ -129,17 +129,28 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
+  itemCategory: {
+    fontSize: 12,
+    color: '#4A90E2',
+    backgroundColor: '#1A2A3A',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 4,
   },
   locationText: {
     marginLeft: 8,
     color: '#AAAAAA',
-    fontSize: 14,
+    fontSize: 13,
   },
-  separator: {
-    color: '#555555',
+  breadcrumbArrow: {
+    color: '#4A90E2',
+    marginHorizontal: 4,
   },
   emptyText: {
     color: '#AAAAAA',

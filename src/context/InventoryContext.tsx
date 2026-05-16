@@ -8,6 +8,12 @@ export interface Almacen {
   icono: string;
 }
 
+export interface ArticuloCompra {
+  id: string;
+  nombre: string;
+  comprado: boolean;
+}
+
 export interface Seccion {
   id: string;
   nombre: string;
@@ -39,6 +45,10 @@ interface InventoryContextType {
   getSeccionesByAlmacen: (almacenId: string) => Seccion[];
   getArticulosByAlmacen: (almacenId: string) => Articulo[];
   getArticulosBySeccion: (seccionId: string) => Articulo[];
+  listaCompras: ArticuloCompra[];
+  addArticuloCompra: (nombre: string) => void;
+  toggleComprado: (id: string) => void;
+  deleteArticuloCompra: (id: string) => void;
 }
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
@@ -72,6 +82,7 @@ export const InventoryProvider = ({ children }: { children: ReactNode }) => {
 
   const [secciones, setSecciones] = useState<Seccion[]>([]);
   const [articulos, setArticulos] = useState<Articulo[]>([]);
+  const [listaCompras, setListaCompras] = useState<ArticuloCompra[]>([]);
 
   const generateId = () => Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
 
@@ -117,6 +128,21 @@ export const InventoryProvider = ({ children }: { children: ReactNode }) => {
     setArticulos(prev => prev.filter(a => a.seccionId !== id));
   };
 
+  const addArticuloCompra = (nombre: string) => {
+    const newItem = { id: generateId(), nombre, comprado: false };
+    setListaCompras(prev => [...prev, newItem]);
+  };
+
+  const toggleComprado = (id: string) => {
+    setListaCompras(prev => prev.map(item => 
+      item.id === id ? { ...item, comprado: !item.comprado } : item
+    ));
+  };
+
+  const deleteArticuloCompra = (id: string) => {
+    setListaCompras(prev => prev.filter(item => item.id !== id));
+  };
+
   const getSeccionesByAlmacen = (almacenId: string) => secciones.filter(s => s.almacenId === almacenId);
   
   const getArticulosByAlmacen = (almacenId: string) => articulos.filter(a => a.almacenId === almacenId);
@@ -139,7 +165,11 @@ export const InventoryProvider = ({ children }: { children: ReactNode }) => {
       deleteSeccion,
       getSeccionesByAlmacen,
       getArticulosByAlmacen,
-      getArticulosBySeccion
+      getArticulosBySeccion,
+      listaCompras,
+      addArticuloCompra,
+      toggleComprado,
+      deleteArticuloCompra
     }}>
       {children}
     </InventoryContext.Provider>

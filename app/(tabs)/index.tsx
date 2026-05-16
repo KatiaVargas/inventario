@@ -2,15 +2,14 @@ import React from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useInventory, getArticuloStatus } from '../../src/context/InventoryContext';
-import { listaComprasData } from '../../src/data/mockData'; // Mantengo lista compras porque no se pidio refactorizar
 
 export default function InicioScreen() {
-  const { articulos } = useInventory();
+  const { articulos, listaCompras } = useInventory();
   
   const totalArticulos = articulos.length;
   const porCaducar = articulos.filter(a => getArticuloStatus(a.caducidad) === 'warning').length;
   const caducados = articulos.filter(a => getArticuloStatus(a.caducidad) === 'expired').length;
-  const faltanEnLista = listaComprasData.filter(i => !i.comprado).length;
+  const faltanEnLista = listaCompras.filter(i => !i.comprado).length;
 
   return (
     <ScrollView style={styles.container}>
