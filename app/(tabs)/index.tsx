@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
 import { useInventory, getArticuloStatus } from '../../src/context/InventoryContext';
@@ -60,6 +60,20 @@ export default function InicioScreen() {
         visible={modalVisible} 
         onClose={() => setModalVisible(false)} 
       />
+
+      <View style={styles.footer}>
+        <Image 
+          source={require('../../assets/images/logo-cucei-udg.png')} 
+          style={styles.footerLogo}
+          resizeMode="contain"
+        />
+        <View style={styles.footerTextContainer}>
+          <Text style={styles.footerText}><Text style={styles.footerLabel}>Alumna:</Text> Katia Paola Vargas Flores</Text>
+          <Text style={styles.footerText}><Text style={styles.footerLabel}>Profesor:</Text> Zeus Emanuel Gutierrez Cobian</Text>
+          <Text style={styles.footerText}><Text style={styles.footerLabel}>Materia:</Text> Desarrollo de aplicaciones web en la nube y móviles</Text>
+          <Text style={styles.footerText}><Text style={styles.footerLabel}>Ciclo escolar:</Text> 2026A    Mayo - 2026</Text>
+        </View>
+      </View>
     </ScrollView>
   );
 }
@@ -133,5 +147,33 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 12,
     fontSize: 18,
+  },
+  footer: {
+    marginTop: 40,
+    marginBottom: 40,
+    padding: 20,
+    backgroundColor: '#1E1E1E',
+    borderRadius: 16,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#333333',
+  },
+  footerLogo: {
+    width: 120,
+    height: 120,
+    marginBottom: 16,
+  },
+  footerTextContainer: {
+    width: '100%',
+  },
+  footerText: {
+    color: '#AAAAAA',
+    fontSize: 12,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  footerLabel: {
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
 });

@@ -1,9 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, View, SectionList } from 'react-native';
+import { StyleSheet, Text, View, SectionList, TouchableOpacity } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useRouter } from 'expo-router';
 import { useInventory, getArticuloStatus } from '../../src/context/InventoryContext';
 
 export default function CaducidadScreen() {
+  const router = useRouter();
   const { articulos, secciones } = useInventory();
   
   // Agrupar artículos por estado
@@ -21,7 +23,10 @@ export default function CaducidadScreen() {
     const seccion = secciones.find(s => s.id === item.seccionId);
     
     return (
-      <View style={styles.card}>
+      <TouchableOpacity 
+        style={styles.card} 
+        onPress={() => router.push({ pathname: '/almacen/[id]', params: { id: item.almacenId } })}
+      >
         <View style={[styles.statusIndicator, { backgroundColor: section.color }]} />
         <View style={styles.cardContent}>
           <View style={styles.cardHeader}>
@@ -35,7 +40,7 @@ export default function CaducidadScreen() {
             <Text style={styles.locationText}>{seccion?.nombre || 'General'}</Text>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
